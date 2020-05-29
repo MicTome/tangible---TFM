@@ -1,0 +1,35 @@
+{
+  "name": "tangible",
+  "version": "1.0.0",
+  "description": "",
+  "main": "tangible.js",
+  "scripts": {
+    "serve": "node tangible.js"
+  },
+  "author": "Michael Tomé",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "a-frame": "0.0.0",
+    "aframe": "^1.0.4",
+    "connect": "^3.7.0",
+    "ejs": "^3.0.2",
+    "fs": "0.0.1-security",
+    "json": "^9.0.6",
+    "numpy": "0.0.1",
+    "require": "^2.4.20",
+    "three": "^0.115.0"
+  },
+  "devDependencies": {
+    "budo": "^7.0.0",
+    "ghpages": "0.0.3",
+    "require": "^2.4.20"
+  },
+  "keywords": [
+    "aframe",
+    "aframe-tangible",
+    "aframe-scene",
+    "webvr",
+    "vr"
+  ]
+}

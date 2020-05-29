@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- Inline style - 'sha256-w6SvMLXy/Ryx2QPxBlOsL/H23A4XjuLYLnMLlK0ty5s=' <meta http-equiv="content-security-policy"
+  content="default-src 'self' 'unsafe-eval' 'sha256-w6SvMLXy/Ryx2QPxBlOsL/H23A4XjuLYLnMLlK0ty5s=';
+   script-src 'self' 'unsafe-inline' 'unsafe-eval';
+  connect-src 'self';
+  img-src 'self';
+  style-src 'self' 'sha256-UKbTxvoj8BBaKkSLtjE1TDg8RTYzMqANwXf4uQsIeGo=';" />-->
+  <meta charset="utf-8">
+  <title>Tangible! For you</title>
+  <meta name="description" content="Tangible Object for 3D problems with environments">
+
+  <script src="dist/aframe-v1.0.4.min.js"></script>
+  <script src="scripts/registerComponents.js"></script>
+  <script src="scripts/methods.js"></script>
+  <script src="scripts/configSceneMethods.js"></script>
+  <script src="scripts/websocket.js"></script>
+  <script src="scripts/controller.js"></script>
+  <script src="dist/aframe-material.min.js"></script>
+  <script src="dist/aframe-physics-system.min.js"></script>
+  <script src="dist/aframe-physics-extras.min.js"></script>
+  <script type="text/javascript">
+    AFRAME.ASSETS_PATH = "./assets";
+  </script>
+</head>
+
+<body>
+  <!-- Complete scene from a-frame
+        a-frame can only have 1 scene per html
+        When objects are hidden, it's needed to move them to another position
+        because the objects still block mouse interactions
+        rayOrigin reads mouse events-->
+  <a-scene physics="gravity: 0" cursor="rayOrigin: mouse" raycaster='objects: .clickable'>
+
+
+    <!--Default entities for all scenes-->
+    <a-camera id="camara" wasd-controls-enabled="false" look-controls-enabled="false" position="0 0 2.5"
+      cursor-visible="false" cursor-scale="2" cursor-color="#0095DD" cursor-opacity="0.5" mouse-cursor>
+    </a-camera>
+    <a-sky color="#7cb9dF"></a-sky>
+    <a-entity light="type: ambient; color: #888"></a-entity>
+    <a-entity light="type: directional; castShadow:true; color: #CCC; intensity: 0.75" position="0 0.5 3"></a-entity>
+
+
+    <!--Initial scene
+          Contains a simple box-->
+    <a-entity id="initTittle">
+      <a-entity id="boxStart" class='clickable' geometry="primitive: box" material="color: #466082" scale="3 1.5 1.5"
+        position="0 0 0">
+        <a-entity id="textStartB" scale="0.5 0.75 0.75" position="0 0 0.59"
+          text="color: black; align: center; value: Start; width: 9; ">
+        </a-entity>
+
+        <a-entity id="textStartW" scale="0.5 0.75 0.75" position="0 0 0.6"
+          text="color: white; align: center; value: Start; width: 10; ">
+        </a-entity>
+      </a-entity>
+      <a-entity id="aa" type="file" position="100 -0.1 1"
+        textarea="cols: 10; rows: 1; text: dsdsaadas; backgroundColor: white; color: black; disabledBackgroundColor: red; disabled: false;">
+      </a-entity>
+
+    </a-entity>
+
+
+
+    <!--Selection scene
+          Contains de access to the others scenes and the info of connections-->
+    <a-entity id="selectionScene" visible="false">
+
+      <a-entity id="boxRotation" class='clickable' geometry="primitive: box" material="color: red"
+        shadow="receive: false">
+        <a-entity id="textRB" class='clickable' scale="0.5 0.75 0.75" position="0 0 1.59"
+          text="color: black; align: center; value: Rotar; width: 9; ">
+        </a-entity>
+        <a-entity id="textRW" class='clickable' scale="0.5 0.75 0.75" position="0 0 1.6"
+          text="color: white; align: center; value: Rotar; width: 10; ">
+        </a-entity>
+      </a-entity>
+
+      <a-entity id="boxDisplace" class='clickable' geometry="primitive: box" material="color: blue"
+        shadow="receive: false">
+        <a-entity id="textDB" scale="0.5 0.75 0.75" position="0 0 1.59"
+          text="color: black; align: center; value: Mover; width: 9; ">
+        </a-entity>
+        <a-entity id="textDW" scale="0.5 0.75 0.75" position="0 0 1.6"
+          text="color: white; align: center; value: Mover; width: 10; ">
+        </a-entity>
+      </a-entity>
+
+      <a-entity id="boxFree" class='clickable' geometry="primitive: box" material="color: orange"
+        shadow="cast: true; receive: false">
+        <a-entity id="textLB" scale="0.5 0.75 0.75" position="0 0 1.59"
+          text="color: black; align: center; value: Libre; width: 9; ">
+        </a-entity>
+        <a-entity id="textLW" scale="0.5 0.75 0.75" position="0 0 1.6"
+          text="color: white; align: center; value: Libre; width: 10; ">
+        </a-entity>
+      </a-entity>
+
+      <a-entity id="boxShape" class='clickable' geometry="primitive: box" material="color: green"
+        shadow="cast: true; receive: false">
+        <a-entity id="textLB" scale="0.5 0.75 0.75" position="0 0 1.59"
+          text="color: black; align: center; value: Forma; width: 9; ">
+        </a-entity>
+        <a-entity id="textLW" scale="0.5 0.75 0.75" position="0 0 1.6"
+          text="color: white; align: center; value: Forma; width: 10; ">
+        </a-entity>
+      </a-entity>
+
+      <a-entity id="groundPlane" geometry="primitive: plane" material="color: grey" scale="8 8 8" rotation="-20 0 0"
+        shadow>
+      </a-entity>
+
+      <a-entity id="textInfoConnection" scale="0.5 0.8 1" position="100 0 0"
+        text="color: black; align: right; width: 10; opacity: 1.0">
+      </a-entity>
+      <a-entity id="reconnect" class='clickable' geometry="primitive: box" material="color: #466082" scale="1 0.3 0"
+        rotation="5 0 0" position="100 0 0" rotation="0 0 0">
+        <a-entity id="textNewW" scale="0.3 0.9 1" position="0 0 1.5"
+          text="color: white; align: center; value: Reintentar; width: 10; ">
+        </a-entity>
+      </a-entity>
+
+      <a-entity id="disconnect" class='clickable' geometry="primitive: box" material="color: #466082" scale="1 0.3 0"
+        rotation="5 0 0" position="100 0 0" rotation="0 0 0">
+        <a-entity id="textDelW" scale="0.3 0.9 1" position="0 0 1.5"
+          text="color: white; align: center; value: Desconectar; width: 10; ">
+        </a-entity>
+      </a-entity>
+    </a-entity>
+
+
+    <!--Rotation scene
+          Scene where the tangile object representation is going to rotate-->
+    <a-entity id="rotationScene" visible="false">
+      <a-box id="tangibleR" position="100 0 0" material="color: blue"
+        geometry="primitive: box; width: 1; height: 1; depth: 2"></a-box>
+
+      <!--Back button-->
+      <a-entity id="backR" class='clickable' geometry="primitive: box" material="color: #466082" scale="0.1 0.05 0"
+        position="100 0 0" rotation="0 0 0">
+        <a-entity id="textBackRW" scale="0.5 0.75 0.75" position="0 0 0.69"
+          text="color: white; align: center; value: Back; width: 10; ">
+        </a-entity>
+      </a-entity>
+
+    </a-entity>
+
+    <!--Displace scene
+          Scene where tangible object representantion is going to be displaced.
+          This scene has other objects as references-->
+    <a-entity id="displaceScene" visible="false">
+      <a-camera id="camaraD" active="false" wasd-controls-enabled="false" look-controls-enabled="false"
+        position="0 0 2.5" cursor-visible="false" cursor-scale="2" cursor-color="#0095DD" cursor-opacity="0.5"
+        mouse-cursor>
+      </a-camera>
+      <a-box id="tangibleD" physics-collider="ignoreSleep: true" s
+        static-body="shape: box; width: 1; height: 1; depth: 2" position="100 0 0" material="color: blue"
+        collision-filter="group: box; collidesWith: robot, sofa2D"
+        geometry="primitive: box; width: 1; height: 1; depth: 2">
+      </a-box>
+
+      <a-plane id="planeD" rotation="-60 0 0" position="100 0 0" scale="30 30 10" src="/assets/images/rayas.jpg">
+      </a-plane>
+      <a-entity id="fiatD" autoscale="3" gltf-model="url(/assets/models/Fiat 600 Prototipo.gltf)" rotation="0 45 0"
+        position="100 0 0">
+      </a-entity>
+      <a-entity id="sofaD" autoscale="3" gltf-model="url(/assets/models/Sofa_01.gltf)" rotation="0 -90 0"
+        position="100 0 0">
+      </a-entity>
+      <a-entity id="carD" autoscale="3" gltf-model="url(/assets/models/model.gltf)" rotation="0 0 0" position="100 0 0">
+      </a-entity>
+      <a-entity id="sofa2D" physics-collider="ignoreSleep: true"
+        static-body="shape: box; width: 0.3; height: 0.5; depth: 1" collision-filter="group: sofa2D; collidesWith: box"
+        autoscale="3" gltf-model="url(/assets/models/scene.gltf)" rotation="0 -90 0" position="100 0 0">
+      </a-entity>
+      <a-entity id="sofa2Dtext" geometry="primitive: box" visible=false material="color: #466082" scale="1.5 0.5 0"
+        position="100 0 0" rotation="0 0 0">
+        <a-entity id="textsofa2D" scale="0.2 0.75 0.75" position="0 0 0.69"
+          text="color: white; align: center; value: Soy un chaise longue; width: 10; ">
+        </a-entity>
+      </a-entity>
+
+      <a-entity id="robot" physics-collider="ignoreSleep: true"
+        static-body="shape: box; width: 0.5; height: 1; depth: 0.3" collision-filter="group: robot; collidesWith: box"
+        autoscale="3" gltf-model="url(/assets/models/10 - stickrobot.gltf)" rotation="0 -90 0" scale="0.5 0.5 0.5"
+        position="100 0 0"></a-entity>
+    </a-entity>
+    <a-entity id="robotText" geometry="primitive: box" visible=false material="color: #466082" scale="1 0.5 0"
+      position="100 0 0" rotation="0 0 0">
+      <a-entity id="textRobot" scale="0.35 0.75 0.75" position="0 0 0.69"
+        text="color: white; align: center; value: BIP-BOP... NO; width: 10; ">
+      </a-entity>
+    </a-entity>
+    <a-entity id="backD" class='clickable' geometry="primitive: box" material="color: #466082" scale="0.1 0.05 0"
+      position="100 0 0" rotation="0 0 0">
+      <a-entity id="textBackDW" scale="0.5 0.75 0.75" position="0 0 0.69"
+        text="color: white; align: center; value: Back; width: 10; ">
+      </a-entity>
+    </a-entity>
+    </a-entity>
+
+    <!--Free scene
+          Contains same objects that displace scene, but the tangible object has no movement limitations-->
+    <a-entity id="freeScene" visible="false">
+      <a-box id="tangibleF" position="100 0 0" material="color: blue"
+        geometry="primitive: box; width: 1; height: 1; depth: 2">
+        <a-camera id="camaraFree" active="false" wasd-controls-enabled="false" look-controls-enabled="false"
+          position="0 0 3.5" cursor-visible="false" cursor-scale="2" cursor-color="#0095DD" cursor-opacity="0.5"
+          mouse-cursor>
+        </a-camera>
+        <a-entity id="backF" class='clickable' geometry="primitive: box" material="color: #466082" scale="0.1 0.05 0"
+          position="100 0 0" rotation="0 0 0">
+          <a-entity id="textBackFW" scale="0.5 0.75 0.75" position="0 0 0.69"
+            text="color: white; align: center; value: Back; width: 10; ">
+          </a-entity>
+        </a-entity>
+      </a-box>
+
+      <a-plane id="planeF" rotation="-60 0 0" position="100 0 0" scale="30 30 10" src="/assets/images/rayas.jpg">
+      </a-plane>
+      <a-entity id="fiatF" autoscale="3" gltf-model="url(/assets/models/Fiat 600 Prototipo.gltf)" rotation="0 45 0"
+        position="100 0 0">
+      </a-entity>
+      <a-entity id="sofaF" autoscale="3" gltf-model="url(/assets/models/Sofa_01.gltf)" rotation="0 -90 0"
+        position="100 0 0">
+      </a-entity>
+      <a-entity id="carF" autoscale="3" gltf-model="url(/assets/models/model.gltf)" rotation="0 0 0" position="100 0 0">
+      </a-entity>
+      <a-entity id="sofa2F" autoscale="3" gltf-model="url(/assets/models/scene.gltf)" rotation="0 -90 0"
+        position="100 0 0"></a-entity>
+    </a-entity>
+
+
+    </a-entity>
+
+    <!--Object scene
+          Scene where you can switch the shape of tangible object-->
+    <a-entity id="shapeScene" visible="false">
+      <a-light type="point" color="black" position="0 1 0"></a-light>
+
+      <a-entity id="selectLeft" class='clickable' material="color: blue" position="100 0 0"
+        geometry="primitive: triangle; vertex-a: 0 0.25 0; vertex-b: -0.25 0 0; vertex-c: 0 -0.25 0"></a-entity>
+      <a-entity id="selectRight" class='clickable' material="color: blue" position="100 0 0"
+        geometry="primitive: triangle; vertex-a: 0 0.25 0; vertex-b: 0 -0.25 0; vertex-c: 0.25 0 0"></a-entity>
+
+      <a-entity id="object" class='clickable' rotation="5 0 0" material="color: #0065ca" position="100 0 0" geometry="">
+      </a-entity>
+      <a-entity id="objectLeft" material="color: #0065ca" position="100 0 0" geometry=""></a-entity>
+      <a-entity id="objectRight" material="color: #0065ca" position="100 0 0" geometry=""></a-entity>
+      <!--<a-entity id="aux" material="color: #0065ca" position="100 0 0" geometry=""></a-entity>-->
+
+      <a-entity id="selectObject" class='clickable' geometry="primitive: box" material="color: #466082"
+        scale="1.5 0.4 0" rotation="5 0 0" position="100 0 0" rotation="0 0 0">
+        <a-entity id="textSelectW" scale="0.3 0.9 1" position="0 0 1.5"
+          text="color: white; align: center; value: Seleccionar; width: 10; ">
+        </a-entity>
+      </a-entity>
+
+
+      <a-entity id="update" class='clickable' geometry="primitive: box" material="color: #466082" scale="1 0.3 0"
+        rotation="5 0 0" position="100 0 0" rotation="0 0 0">
+        <a-entity id="textNewW" scale="0.3 0.9 1" position="0 0 1.5"
+          text="color: white; align: center; value: Actualizar; width: 10; ">
+        </a-entity>
+      </a-entity>
+
+    </a-entity>
+
+
+    <a-entity id="backS" class='clickable' geometry="primitive: box" material="color: #466082" scale="0.1 0.05 0"
+      position="100 0 0" rotation="0 0 0">
+      <a-entity id="textBackSW" scale="0.5 0.75 0.75" position="0 0 0.69"
+        text="color: white; align: center; value: Back; width: 10; ">
+      </a-entity>
+    </a-entity>
+    </a-entity>
+
+
+    <!--script for all declarations-->
+    <script>
+      //All boleans used on the system
+      let selectionScreen = false, rotationScreen = false,
+        displaceScreen = false, freeScreen = false, shapeScreen = false, mouseDown = false,
+        updateB = false, connectionClosed = true, connectionAchieved = false, calibrating = false,
+        sofa2DHit = false, robotHit = false;
+
+      let aux = 0;
+      let radToDeg = 57.2578;
+      let pi = Math.PI;
+      let count = 0;
+      let difX = 0.0, difY = 0.0, difZ = 0.0;
+      let difgX = 0.0, difgY = 0.0, difgZ = 0.0;
+      let maxX = -10.0, minX = 10.0, maxY = -10.0, minY = 10.0, maxZ = -10.0, minZ = 10.0;
+      let maxgX = -10.0, mingX = 10.0, maxgY = -10.0, mingY = 10.0, maxgZ = -10.0, mingZ = 10.0;
+      let pitchB = 0.0, rollB = 0.0, gxB = 0.0, gyB = 0.0, gzB = 0.0;
+      let pitch = 0.0, roll = 0.0;
+
+      let degreesX = 0.0;
+      let degreesXdriftPos = 0, degreesXdriftNeg = 0;
+      let degreesY = 0.0;
+      let degreesYdriftPos = 0, degreesYdriftNeg = 0;
+      let degreesZ = 0.0;
+      let degreesZdriftPos = 0, degreesZdriftNeg = 0;
+      let radZ = 0;
+      let radValueMax = 2.95;
+      let gxBaux = 0.0, gyBaux = 0.0, gzBaux = 0.0;
+
+      let gx = 0.0, gy = 0.0, gz = 0.0, ax = 0.0, ay = 0.0, az = 0.0;
+
+      //Variable for listeners
+      //Variable from initial scene
+      let boxStart = document.querySelector("#boxStart");
+
+      //All variables from selection scene 
+      let boxR = document.querySelector("#boxRotation");
+      let boxD = document.querySelector("#boxDisplace");
+      let boxF = document.querySelector("#boxFree");
+      let boxS = document.querySelector("#boxShape");
+      let gPlane = document.querySelector("#groundPlane"); //Plane used as ground
+      let reconnect = document.querySelector("#reconnect");
+      let disconnect = document.querySelector("#disconnect");
+      let textInfoConnection = document.querySelector("#textInfoConnection");
+
+      //Variable from rotation scene
+      let tangibleR = document.querySelector("#tangibleR");
+      let backR = document.querySelector("#backR");
+
+      //Variable from displace scene
+      let tangibleD = document.querySelector("#tangibleD");
+      let planeD = document.querySelector("#planeD");
+      let fiatD = document.querySelector("#fiatD");
+      let sofaD = document.querySelector("#sofaD");
+      let sofa2D = document.querySelector("#sofa2D");
+      let sofa2Dtext = document.querySelector("#sofa2Dtext");
+      let robot = document.querySelector("#robot");
+      let robotText = document.querySelector("#robotText");
+      let carD = document.querySelector("#carD");
+      let backD = document.querySelector("#backD");
+      let camaraD = document.querySelector("#camaraD");
+
+      //Variable from free movement scene
+      let tangibleF = document.querySelector("#tangibleF");
+      let planeF = document.querySelector("#planeF");
+      let fiatF = document.querySelector("#fiatF");
+      let sofaF = document.querySelector("#sofaF");
+      let sofa2F = document.querySelector("#sofa2F");
+      let carF = document.querySelector("#carF");
+      let backF = document.querySelector("#backF");
+      let camaraF = document.querySelector("#camaraFree");
+
+      //Variable from change shape scene
+      let selectLS = document.querySelector("#selectLeft");
+      let selectRS = document.querySelector("#selectRight");
+      let object = document.querySelector("#object");
+      let objectLeft = document.querySelector("#objectLeft");
+      let objectRight = document.querySelector("#objectRight");
+      let selectObject = document.querySelector("#selectObject");
+      let update = document.querySelector("#update");
+      let backS = document.querySelector("#backS");
+
+      //Object that will get all the different shapes in /assets/models/
+      let selectableObjects = [
+      ];
+
+      //Index used for selecableObjects values
+      let index = 0;
+    </script>
+
+    <!--script for all listeners of the variables-->
+    <script>
+      /*Initial scene
+        boxStart: clickable object on the scene
+        Listeners added:
+          -click: reacts on click in the box mesh
+          -mouseenter: reacts on hover box mesh
+          -mouseleave: reacts on leave hover area
+      */
+      boxStart.addEventListener("click", function (evt) {
+        //Animation that change the scale on click
+        this.setAttribute('animation__scale', "property: scale; from: 3 1.5 1.5; to: 2.7 1.3 1.3; dur:300; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 2.7 1.3 1.3; to: 3 1.5 1.5; dur:300; loop: false");
+        controllerBoxStart();
+
+      });
+      boxStart.addEventListener("mouseenter", function (evt) {
+        //The text of the box increase and decrease its size too on hover
+        document.querySelector("#textStartB").setAttribute('animation', "property: scale; to: 0.75 1 1; dur:300; dir: alternate; loop: false");
+        document.querySelector("#textStartW").setAttribute('animation', "property: scale; to: 0.75 1 1; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation', "property: components.material.material.color; type: color; from: #466082; to: #2e4056; dur:1000; dir: alternate; loop: true");
+      });
+      boxStart.addEventListener("mouseleave", function (evt) {
+        //and decrease on leave in animation form
+        document.querySelector("#textStartB").setAttribute('animation', "property: scale; to: 0.5 0.75 0.75; dur:300; loop: false");
+        document.querySelector("#textStartW").setAttribute('animation', "property: scale; to: 0.5 0.75 0.75; dur:300; loop: false");
+        this.setAttribute('animation', "property: components.material.material.color; type: color; from: #466082; to: #466082; dur:300; dir: alternate; loop: false");
+      });
+
+      /*Selection scene
+        boxR: box that change to rotation scene. Send start signal to receive all data.
+        boxD: box that change to displace scene. Send start signal to receive all data.
+        boxF: box that change to free movement scene. Send start signal to receive all data.
+        reconnect: allows to reconnect when connection fails
+        disconnect: cut the connection
+      */
+      //On click, if there's a server connected, you can charge the scene
+      boxR.addEventListener("click", function (evt) {
+        controllerBoxR();
+      });
+      boxR.addEventListener("mouseenter", function (evt) {
+        if (selectionScreen)
+          this.setAttribute('animation__scale', "property: scale; from: 1 1 1; to: 1.5 1.5 1.5; dur:300; loop: false");
+      });
+      boxR.addEventListener("mouseleave", function (evt) {
+        if (!rotationScreen && selectionScreen)
+          this.setAttribute('animation__scale', "property: scale; from: 1.5 1.5 1.5; to: 1 1 1; dur:300; loop: false");
+      });
+
+
+      boxD.addEventListener("click", function (evt) {
+        controllerBoxD();
+      });
+      boxD.addEventListener("mouseenter", function (evt) {
+        if (selectionScreen)
+          this.setAttribute('animation__scale', "property: scale; from: 1 1 1; to: 1.5 1.5 1.5; dur:300; loop: false");
+      });
+      boxD.addEventListener("mouseleave", function (evt) {
+        if (!displaceScreen && selectionScreen)
+          this.setAttribute('animation__scale', "property: scale; from: 1.5 1.5 1.5; to: 1 1 1; dur:300; loop: false");
+      });
+
+
+      boxF.addEventListener("click", function (evt) {
+        controllerBoxF();
+      });
+      boxF.addEventListener("mouseenter", function (evt) {
+        if (selectionScreen)
+          this.setAttribute('animation__scale', "property: scale; from: 1 1 1; to: 1.5 1.5 1.5; dur:300; loop: false");
+      });
+      boxF.addEventListener("mouseleave", function (evt) {
+        if (!freeScreen && selectionScreen)
+          this.setAttribute('animation__scale', "property: scale; from: 1.5 1.5 1.5; to: 1 1 1; dur:300; loop: false");
+      });
+
+
+      boxS.addEventListener("click", function (evt) {
+        controllerBoxS();
+      });
+      boxS.addEventListener("mouseenter", function (evt) {
+        if (selectionScreen)
+          this.setAttribute('animation__scale', "property: scale; from: 1 1 1; to: 1.5 1.5 1.5; dur:300; loop: false");
+      });
+      boxS.addEventListener("mouseleave", function (evt) {
+        if (!shapeScreen && selectionScreen)
+          this.setAttribute('animation__scale', "property: scale; from: 1.5 1.5 1.5; to: 1 1 1; dur:300; loop: false");
+      });
+
+
+      reconnect.addEventListener("click", function (evt) {
+        this.setAttribute('animation__scale', "property: scale; from: 1.25 0.4 0; to: 1 0.3 0; dur:300; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 1 0.3 0; to: 1.25 0.4 0; dur:300; loop: false");
+        controllerReconnect();
+      });
+      reconnect.addEventListener("mouseenter", function (evt) {
+        document.querySelector("#textNewW").setAttribute('animation', "property: scale; to: 0.4 1 0; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation', "property: components.material.material.color; type: color; from: #466082; to: #2e4056; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 1 0.3 0; to: 1.25 0.4 0; dur:300; loop: false");
+      });
+      reconnect.addEventListener("mouseleave", function (evt) {
+        document.querySelector("#textNewW").setAttribute('animation', "property: scale; to: 0.3 0.9 0; dur:300; loop: false");
+        this.setAttribute('animation', "property: components.material.material.color; type: color; from: #466082; to: #466082; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 1.25 0.4 0; to: 1 0.3 0; dur:300; loop: false");
+      });
+
+
+      disconnect.addEventListener("click", function (evt) {
+        this.setAttribute('animation__scale', "property: scale; from: 1.25 0.4 0; to: 1 0.3 0; dur:300; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 1 0.3 0; to: 1.25 0.4 0; dur:300; loop: false");
+        controllerDisconnect();
+      });
+      disconnect.addEventListener("mouseenter", function (evt) {
+        document.querySelector("#textDelW").setAttribute('animation', "property: scale; to: 0.4 1 0; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation', "property: components.material.material.color; type: color; from: #466082; to: #2e4056; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 1 0.3 0; to: 1.25 0.4 0; dur:300; loop: false");
+      });
+      disconnect.addEventListener("mouseleave", function (evt) {
+        document.querySelector("#textDelW").setAttribute('animation', "property: scale; to: 0.3 0.9 0; dur:300; loop: false");
+        this.setAttribute('animation', "property: components.material.material.color; type: color; from: #466082; to: #466082; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 1.25 0.4 0; to: 1 0.3 0; dur:300; loop: false");
+      });
+
+
+      /*Rotation scene
+        tangibleR: doesn't have listeners
+        backR: box that returns to the selection scene. Send a message to the server to stop sending data.
+      */
+      backR.addEventListener("click", function (evt) {
+        this.setAttribute('animation__scale', "property: scale; from: 0.15 0.075 0; to: 0.1 0.05 0; dur:300; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 0.1 0.05 0; to: 0.15 0.075 0; dur:300; loop: false");
+        controllerBackR();
+      });
+      backR.addEventListener("mouseenter", function (evt) {
+        document.querySelector("#textBackRW").setAttribute('animation', "property: scale; to: 0.75 1 1; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation', "property: components.material.material.color; type: color; from: #466082; to: #2e4056; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 0.1 0.05 0; to: 0.15 0.075 0; dur:300; loop: false");
+      });
+      backR.addEventListener("mouseleave", function (evt) {
+        document.querySelector("#textBackRW").setAttribute('animation', "property: scale; to: 0.5 0.75 0.75; dur:300; loop: false");
+        this.setAttribute('animation', "property: components.material.material.color; type: color; from: #466082; to: #466082; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 0.15 0.075 0; to: 0.1 0.05 0; dur:300; loop: false");
+      });
+
+
+      /*Displace scene
+        tangibleD: collision listeners to know which object is colliding with the tangible object
+        objects in scene: doesn't have listeners
+        backD: box that returns to the selection scene. Send a message to the server to stop sending data.
+      */
+      tangibleD.addEventListener("collisions", function (evt) {
+        controllerTangibleD(evt);
+      });
+
+      backD.addEventListener("click", function (evt) {
+        this.setAttribute('animation__scale', "property: scale; from: 0.15 0.075 0; to: 0.1 0.05 0; dur:300; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 0.1 0.05 0; to: 0.15 0.075 0; dur:300; loop: false");
+        controllerBackD();
+      });
+      backD.addEventListener("mouseenter", function (evt) {
+        document.querySelector("#textBackDW").setAttribute('animation', "property: scale; to: 0.75 1 1; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation', "property: components.material.material.color; type: color; from: #466082; to: #2e4056; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 0.1 0.05 0; to: 0.15 0.075 0; dur:300; loop: false");
+      });
+      backD.addEventListener("mouseleave", function (evt) {
+        document.querySelector("#textBackDW").setAttribute('animation', "property: scale; to: 0.5 0.75 0.75; dur:300; loop: false");
+        this.setAttribute('animation', "property: components.material.material.color; type: color; from: #466082; to: #466082; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 0.15 0.075 0; to: 0.1 0.05 0; dur:300; loop: false");
+      });
+
+
+      /*Free scene
+        tangibleF: doesn't have listeners
+        objects in scene: doesn't have listeners
+        backF: box that returns to the selection scene. Send a message to the server to stop sending data.
+      */
+      backF.addEventListener("click", function (evt) {
+        this.setAttribute('animation__scale', "property: scale; from: 0.15 0.075 0; to: 0.1 0.05 0; dur:300; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 0.1 0.05 0; to: 0.15 0.075 0; dur:300; loop: false");
+        controllerBackF();
+      });
+      backF.addEventListener("mouseenter", function (evt) {
+        document.querySelector("#textBackFW").setAttribute('animation', "property: scale; to: 0.75 1 1; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation', "property: components.material.material.color; type: color; from: #466082; to: #2e4056; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 0.1 0.05 0; to: 0.15 0.075 0; dur:300; loop: false");
+      });
+      backF.addEventListener("mouseleave", function (evt) {
+        document.querySelector("#textBackFW").setAttribute('animation', "property: scale; to: 0.5 0.75 0.75; dur:300; loop: false");
+        this.setAttribute('animation', "property: components.material.material.color; type: color; from: #466082; to: #466082; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 0.15 0.075 0; to: 0.1 0.05 0; dur:300; loop: false");
+      });
+
+
+      /*Shape scene
+        object: object that is selected. It's clickable and on hold, it's rotatable
+        objectLeft/objectRight: don't have listeners, only for visual purposes
+        selectLS: left arrow tha allows change the selected object to the one on left
+        selectRS: left arrow tha allows change the selected object to the one on right
+        selectObject: on click, charge tangible objects with the shape of "object"
+        update: box button that allow to charge all the objects in /assets/models/ if files changes
+                while system is executing
+        backS: box that returns to the selection scene
+      */
+      object.addEventListener("mousedown", function (evt) {
+        mouseDown = true;
+        object.setAttribute('animation__rotation', "enabled: false");
+      });
+      object.addEventListener("mouseup", function (evt) {
+        mouseDown = false;
+        object.setAttribute('animation__rotation', "enabled: true");
+      });
+      //Reads the movement of the mouse when the mouse is on click/mousedown state and
+      //rotate de objects after converting the screen position to window position
+      document.addEventListener("mousemove", function (evt) {
+        if (mouseDown) {
+          let mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+          let mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+          let rot = -mouseY * 100.0 + " " + mouseX * 100.0 + " 0";
+          object.setAttribute('rotation', rot);
+        }
+      });
+
+
+      selectLS.addEventListener("click", function (evt) {
+        this.setAttribute('animation__scale', "property: scale; from: 1.25 1.25 1.25; to: 1 1 1; dur:300; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 1 1 1; to: 1.25 1.25 1.25; dur:300; loop: false");
+        controllerSelectLS();
+      });
+      selectLS.addEventListener("mouseenter", function (evt) {
+        this.setAttribute('animation', "property: components.material.material.color; type: color; from: blue; to: red; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 1 1 1; to: 1.25 1.25 1.25; dur:300; loop: false");
+      });
+      selectLS.addEventListener("mouseleave", function (evt) {
+        this.setAttribute('animation', "property: components.material.material.color; type: color; from: red; to: blue; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 1.25 1.25 1.25; to: 1 1 1; dur:300; loop: false");
+      });
+
+
+      selectRS.addEventListener("click", function (evt) {
+        this.setAttribute('animation__scale', "property: scale; from: 1.25 1.25 1.25; to: 1 1 1; dur:300; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 1 1 1; to: 1.25 1.25 1.25; dur:300; loop: false");
+        controllerSelectRS();
+      });
+      selectRS.addEventListener("mouseenter", function (evt) {
+        this.setAttribute('animation', "property: components.material.material.color; type: color; from: blue; to: red; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 1 1 1; to: 1.25 1.25 1.25; dur:300; loop: false");
+      });
+      selectRS.addEventListener("mouseleave", function (evt) {
+        this.setAttribute('animation', "property: components.material.material.color; type: color; from: red; to: blue; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 1.25 1.25 1.25; to: 1 1 1; dur:300; loop: false");
+      });
+
+
+      selectObject.addEventListener("click", function (evt) {
+        this.setAttribute('animation__scale', "property: scale; from: 1.7 0.55 0; to: 1.5 0.4 0; dur:300; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 1.5 0.4 0; to: 1.7 0.55 0; dur:300; loop: false");
+        controllerSelectObject();
+      });
+      selectObject.addEventListener("mouseenter", function (evt) {
+        document.querySelector("#textSelectW").setAttribute('animation', "property: scale; to: 0.4 1 0; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation', "property: components.material.material.color; type: color; from: #466082; to: #2e4056; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 1.5 0.4 0; to: 1.7 0.55 0; dur:300; loop: false");
+      });
+      selectObject.addEventListener("mouseleave", function (evt) {
+        document.querySelector("#textSelectW").setAttribute('animation', "property: scale; to: 0.3 0.9 0; dur:300; loop: false");
+        this.setAttribute('animation', "property: components.material.material.color; type: color; from: #466082; to: #466082; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 1.7 0.55 0; to: 1.5 0.4 0; dur:300; loop: false");
+      });
+
+
+      update.addEventListener("click", function (evt) {
+        this.setAttribute('animation__scale', "property: scale; from: 1.25 0.4 0; to: 1 0.3 0; dur:300; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 1 0.3 0; to: 1.25 0.4 0; dur:300; loop: false");
+        controllerUpdate();
+      });
+      update.addEventListener("mouseenter", function (evt) {
+        document.querySelector("#textNewW").setAttribute('animation', "property: scale; to: 0.4 1 0; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation', "property: components.material.material.color; type: color; from: #466082; to: #2e4056; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 1 0.3 0; to: 1.25 0.4 0; dur:300; loop: false");
+      });
+      update.addEventListener("mouseleave", function (evt) {
+        document.querySelector("#textNewW").setAttribute('animation', "property: scale; to: 0.3 0.9 0; dur:300; loop: false");
+        this.setAttribute('animation', "property: components.material.material.color; type: color; from: #466082; to: #466082; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 1.25 0.4 0; to: 1 0.3 0; dur:300; loop: false");
+      });
+
+
+      backS.addEventListener("click", function (evt) {
+        this.setAttribute('animation__scale', "property: scale; from: 0.15 0.075 0; to: 0.1 0.05 0; dur:300; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 0.1 0.05 0; to: 0.15 0.075 0; dur:300; loop: false");
+        controllerBackS();
+      });
+      backS.addEventListener("mouseenter", function (evt) {
+        document.querySelector("#textBackSW").setAttribute('animation', "property: scale; to: 0.75 1 1; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation', "property: components.material.material.color; type: color; from: #466082; to: #2e4056; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 0.1 0.05 0; to: 0.15 0.075 0; dur:300; loop: false");
+      });
+      backS.addEventListener("mouseleave", function (evt) {
+        document.querySelector("#textBackSW").setAttribute('animation', "property: scale; to: 0.5 0.75 0.75; dur:300; loop: false");
+        this.setAttribute('animation', "property: components.material.material.color; type: color; from: #466082; to: #466082; dur:300; dir: alternate; loop: false");
+        this.setAttribute('animation__scale', "property: scale; from: 0.15 0.075 0; to: 0.1 0.05 0; dur:300; loop: false");
+      });
+    </script>
+</body>
+
+</html>
