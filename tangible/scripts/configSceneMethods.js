@@ -158,19 +158,28 @@ function chargeDisplace() {
     camaraD.setAttribute('position', '0 0 2.5');
     sofa2DHit = false;
     robotHit = false;
+    sofaDHit = false;
+    carDHit = false;
+    fiatDHit = false;
     displaceScreen = true;
     selectionScreen = false;
     gzBaux = gzB;
     //Scene objects
     planeD.setAttribute('position', "0 -9 0");
     fiatD.setAttribute('position', "-3 -1 -2");
-    carD.setAttribute('position', "0 -1 0");
-    sofaD.setAttribute('position', "0 -1 -2");
-    sofa2D.setAttribute('position', "2 -1 1");
-    sofa2Dtext.setAttribute('position', "2 0 1");
+    fiatDText.setAttribute('position', "-3 0 -2");
+    fiatDText.setAttribute('visible', false);
+    carD.setAttribute('position', "0 -2 -3");
+    carDText.setAttribute('position', "0 -2 -3");
+    carDText.setAttribute('visible', false);
+    sofaD.setAttribute('position', "0 -1 -5");
+    sofaDText.setAttribute('position', "0 0 -5");
+    sofaDText.setAttribute('visible', false);
+    sofa2D.setAttribute('position', "3 -1 0");
+    sofa2Dtext.setAttribute('position', "3 0 0");
     sofa2Dtext.setAttribute('visible', false);
-    robot.setAttribute('position', "-2 0 -1");
-    robotText.setAttribute('position', "-2 1.5 -1");
+    robot.setAttribute('position', "-4 0 -1");
+    robotText.setAttribute('position', "-4 1.5 -1");
     robotText.setAttribute('visible', false);
     tangibleD.setAttribute('position', "0 0 -1");
     backD.setAttribute('position', "-0.75 -0.3 2");
@@ -201,7 +210,11 @@ function chargeFromDisplace() {
   tangibleD.setAttribute('position', "100 0 0");
   planeD.setAttribute('position', "100 0 0");
   fiatD.setAttribute('position', "100 0 0");
+  fiatDText.setAttribute('position', "100 0 0");
+  fiatDText.setAttribute('visible', false);
   sofaD.setAttribute('position', "100 0 0");
+  sofaDText.setAttribute('position', "100 0 0");
+  sofaDText.setAttribute('visible', false);
   sofa2D.setAttribute('position', "100 0 0");
   sofa2Dtext.setAttribute('position', "100 0 0");
   sofa2Dtext.setAttribute('visible', false);
@@ -242,6 +255,9 @@ function chargeFromDisplace() {
     displaceScreen = false;
     sofa2DHit = false;
     robotHit = false;
+    sofaDHit = false;
+    carDHit = false;
+    fiatDHit = false;
   }, 1000);
 }
 
