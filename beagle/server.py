@@ -60,30 +60,6 @@ class ITG3200():
         bus.write_byte_data(self.GYRO_ADDRESS, self.ITG3200_INT_C, 0x01) #Tell the gyro that you want to read all samples
         bus.write_byte_data(self.GYRO_ADDRESS, self.ITG3200_PWR_M, 0x01) #Clock source
 
-    # Read the registers of the gyroscope
-    """def read(self, addressh, addressl):
-        t_data = bus.read_byte_data(self.GYRO_ADDRESS, addressh)
-        data = t_data << 8        
-        data |= bus.read_byte_data(self.GYRO_ADDRESS, addressl)
-        return data
-
-    # Get the contents of the registers in the gyroscope
-    #and calculate the angular velocity.        
-    def getXYZ(self):
-        x = self.read(self.ITG3200_GX_H,self.ITG3200_GX_L) + self.x_offset
-        y = self.read(self.ITG3200_GY_H,self.ITG3200_GY_L) + self.y_offset
-        z = self.read(self.ITG3200_GZ_H,self.ITG3200_GZ_L) + self.z_offset
-        return x, y, z"""
-
-    # Get the angular velocity and its unit is degree per second.
-    # Make the data more precise dividing by he sensor sensibility
-    """def getAngularVelocity(self):
-        x,y,z = self.getXYZ()        
-        ax = x/14.375
-        ay = y/14.375
-        az = z/14.375
-        return ax, ay, az"""
-    
     #Get and transform the data of the registers    
     def conversion(self):
         data = bus.read_i2c_block_data(self.GYRO_ADDRESS, self.ITG3200_GX_H, 6)
@@ -155,19 +131,7 @@ class MainHandler(tornado.websocket.WebSocketHandler):
             
 
     def sensors(self):
-        #temp = gyro.read(gyro.ITG3200_TMP_H, gyro.ITG3200_TMP_L);
-        #temperature = 35 + (temp - 13200) / 280;
-        #print("temp: ", temperature)
-        #x, y, z = gyro.getXYZ()
-        #print ("x y z: ", x, y, z)
-        #ax, ay, az = gyro.getAngularVelocity()
         xGyro, yGyro, zGyro = gyro.conversion()
-        #ax = (ax * 250 / 2000) * 3
-        #ay = (ay * 250 / 2000) * 3
-        #az = (az * 250 / 2000) * 3
-        #print ("ax = ", ax,"ay = ", ay,"az = ", az, "degrees/second")
-        #print("Gyro: x, y, z: ",xGyro, yGyro, zGyro)
-        #print("Accel x: %f Accel y: %f Accel z: %f"%accel.acceleration)
         data = { "gyroX" : str(xGyro), "gyroY" : str(yGyro), "gyroZ" : str(zGyro) , "accelX" : str(accel.acceleration[0]) , "accelY" : str(accel.acceleration[1]) , "accelZ" : str(accel.acceleration[2]) }
         try:
             self.write_message(data)
