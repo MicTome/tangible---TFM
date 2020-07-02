@@ -157,21 +157,46 @@
         mouse-cursor>
       </a-camera>
       <a-box id="tangibleD" physics-collider="ignoreSleep: true" s
-        static-body="shape: box; width: 1; height: 1; depth: 2" position="100 0 0" material="color: blue"
-        collision-filter="group: box; collidesWith: robot, sofa2D"
+        static-body="shape: box; width: 1; height: 1; depth: 1" position="100 0 0" material="color: blue"
+        collision-filter="group: box; collidesWith: robot, sofa2D, sofaD, fiatD, carD"
         geometry="primitive: box; width: 1; height: 1; depth: 2">
       </a-box>
 
       <a-plane id="planeD" rotation="-60 0 0" position="100 0 0" scale="30 30 10" src="/assets/images/rayas.jpg">
       </a-plane>
-      <a-entity id="fiatD" autoscale="3" gltf-model="url(/assets/models/Fiat 600 Prototipo.gltf)" rotation="0 45 0"
+      <a-entity id="fiatD" autoscale="3" physics-collider="ignoreSleep: true" collision-filter="group: fiatD; collidesWith: box"
+      static-body="shape: box; width: 0.5; height: 0.5; depth: 0.5"  gltf-model="url(/assets/models/Fiat 600 Prototipo.gltf)" rotation="0 45 0"
         position="100 0 0">
       </a-entity>
-      <a-entity id="sofaD" autoscale="3" gltf-model="url(/assets/models/Sofa_01.gltf)" rotation="0 -90 0"
+      <a-entity id="fiatDText" geometry="primitive: box" visible=false material="color: #466082" scale="1.5 0.5 0"
+        position="100 0 0" rotation="0 0 0">
+        <a-entity id="textfiatDText" scale="0.2 0.75 0.75" position="0 0 0.69"
+          text="color: white; align: center; value: FIAT; width: 10; ">
+        </a-entity>
+      </a-entity>
+
+      <a-entity id="sofaD" autoscale="3" physics-collider="ignoreSleep: true" collision-filter="group: sofaD; collidesWith: box"
+      static-body="shape: box; width: 0.4; height: 0.5; depth: 0.1"  gltf-model="url(/assets/models/Sofa_01.gltf)" rotation="0 -90 0"
         position="100 0 0">
       </a-entity>
-      <a-entity id="carD" autoscale="3" gltf-model="url(/assets/models/model.gltf)" rotation="0 0 0" position="100 0 0">
+      <a-entity id="sofaDText" geometry="primitive: box" visible=false material="color: #466082" scale="1.5 0.5 0"
+        position="100 0 0" rotation="0 0 0">
+        <a-entity id="textsofaDText" scale="0.2 0.75 0.75" position="0 0 0.69"
+          text="color: white; align: center; value: SOFA ROJO; width: 10; ">
+        </a-entity>
       </a-entity>
+
+      
+      <a-entity id="carD" autoscale="3" physics-collider="ignoreSleep: true" collision-filter="group: carD; collidesWith: box"
+      static-body="shape: box; width: 0.3; height: 0.1; depth: 0.3"  gltf-model="url(/assets/models/model.gltf)" rotation="0 0 0" position="100 0 0">
+      </a-entity>
+      <a-entity id="carDText" geometry="primitive: box" visible=false material="color: #466082" scale="1.5 0.5 0"
+        position="100 0 0" rotation="0 0 0">
+        <a-entity id="textcarDText" scale="0.2 0.75 0.75" position="0 0 0.69"
+          text="color: white; align: center; value: TODOTERRENO; width: 10; ">
+        </a-entity>
+      </a-entity>
+
       <a-entity id="sofa2D" physics-collider="ignoreSleep: true"
         static-body="shape: box; width: 0.3; height: 0.5; depth: 1" collision-filter="group: sofa2D; collidesWith: box"
         autoscale="3" gltf-model="url(/assets/models/scene.gltf)" rotation="0 -90 0" position="100 0 0">
@@ -179,7 +204,7 @@
       <a-entity id="sofa2Dtext" geometry="primitive: box" visible=false material="color: #466082" scale="1.5 0.5 0"
         position="100 0 0" rotation="0 0 0">
         <a-entity id="textsofa2D" scale="0.2 0.75 0.75" position="0 0 0.69"
-          text="color: white; align: center; value: Soy un chaise longue; width: 10; ">
+          text="color: white; align: center; value: SOY UN CHAISE LONGUE; width: 10; ">
         </a-entity>
       </a-entity>
 
@@ -285,12 +310,14 @@
       let selectionScreen = false, rotationScreen = false,
         displaceScreen = false, freeScreen = false, shapeScreen = false, mouseDown = false,
         updateB = false, connectionClosed = true, connectionAchieved = false, calibrating = false,
-        sofa2DHit = false, robotHit = false;
+        sofa2DHit = false, robotHit = false, sofaDHit = false, carDHit = false, fiatDHit = false;
 
       let aux = 0;
+      //1 rad 57 deg
       let radToDeg = 57.2578;
       let pi = Math.PI;
       let count = 0;
+      //all init variables
       let difX = 0.0, difY = 0.0, difZ = 0.0;
       let difgX = 0.0, difgY = 0.0, difgZ = 0.0;
       let maxX = -10.0, minX = 10.0, maxY = -10.0, minY = 10.0, maxZ = -10.0, minZ = 10.0;
@@ -308,6 +335,7 @@
       let radValueMax = 2.95;
       let gxBaux = 0.0, gyBaux = 0.0, gzBaux = 0.0;
 
+      //gyro and accel variables
       let gx = 0.0, gy = 0.0, gz = 0.0, ax = 0.0, ay = 0.0, az = 0.0;
 
       //Variable for listeners
@@ -332,12 +360,15 @@
       let tangibleD = document.querySelector("#tangibleD");
       let planeD = document.querySelector("#planeD");
       let fiatD = document.querySelector("#fiatD");
+      let fiatDText = document.querySelector("#fiatDText");
       let sofaD = document.querySelector("#sofaD");
+      let sofaDText = document.querySelector("#sofaDText");
       let sofa2D = document.querySelector("#sofa2D");
       let sofa2Dtext = document.querySelector("#sofa2Dtext");
       let robot = document.querySelector("#robot");
       let robotText = document.querySelector("#robotText");
       let carD = document.querySelector("#carD");
+      let carDText = document.querySelector("#carDText");
       let backD = document.querySelector("#backD");
       let camaraD = document.querySelector("#camaraD");
 
@@ -499,6 +530,19 @@
       backR.addEventListener("click", function (evt) {
         this.setAttribute('animation__scale', "property: scale; from: 0.15 0.075 0; to: 0.1 0.05 0; dur:300; loop: false");
         this.setAttribute('animation__scale', "property: scale; from: 0.1 0.05 0; to: 0.15 0.075 0; dur:300; loop: false");
+        /*data for csv with http request
+        let xh = new XMLHttpRequest();
+        xh.open("POST", "/rotar", true);
+        xh.withCredentials = true;
+        xh.setRequestHeader('Content-Type', 'application/json');
+        let json = {};
+        json["Time"] = ro;
+        json["DegX"] = drx;
+        json["DegY"] = dry;
+        json["DegZ"] = drz;
+        json = JSON.stringify(json);
+        xh.send(json);
+        */
         controllerBackR();
       });
       backR.addEventListener("mouseenter", function (evt) {
@@ -525,6 +569,18 @@
       backD.addEventListener("click", function (evt) {
         this.setAttribute('animation__scale', "property: scale; from: 0.15 0.075 0; to: 0.1 0.05 0; dur:300; loop: false");
         this.setAttribute('animation__scale', "property: scale; from: 0.1 0.05 0; to: 0.15 0.075 0; dur:300; loop: false");
+        /*data for csv with http request
+        let xh = new XMLHttpRequest();
+        xh.open("POST", "/mover", true);
+        xh.withCredentials = true;
+        xh.setRequestHeader('Content-Type', 'application/json');
+        let json = {};
+        json["Time"] = ro;
+        json["pitch"] = drx;
+        json["roll"] = dry;
+        json = JSON.stringify(json);
+        xh.send(json);
+        */
         controllerBackD();
       });
       backD.addEventListener("mouseenter", function (evt) {
@@ -547,6 +603,21 @@
       backF.addEventListener("click", function (evt) {
         this.setAttribute('animation__scale', "property: scale; from: 0.15 0.075 0; to: 0.1 0.05 0; dur:300; loop: false");
         this.setAttribute('animation__scale', "property: scale; from: 0.1 0.05 0; to: 0.15 0.075 0; dur:300; loop: false");
+        /*data for csv with http
+        let xh = new XMLHttpRequest();
+        xh.open("POST", "/libre", true);
+        xh.withCredentials = true;
+        xh.setRequestHeader('Content-Type', 'application/json');
+        
+        
+        let json = {};
+        json["Time"] = ro;
+        json["pitch"] = drx;
+        json["roll"] = dry;
+        json["DegZ"] = drz;
+        json = JSON.stringify(json);
+        xh.send(json);*/
+        
         controllerBackF();
       });
       backF.addEventListener("mouseenter", function (evt) {
